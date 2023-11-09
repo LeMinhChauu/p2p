@@ -1,0 +1,26 @@
+body {
+    width: 99vw; height: 99vh;
+    margin: 0; padding: 0;
+}
+
+.app {
+    width: 80%;
+    height: 80%;
+    margin: auto;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+button {
+    background-color: white;
+}
+
+.p-8 {
+    padding: 8px 16px;
+}
