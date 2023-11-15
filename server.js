@@ -144,7 +144,6 @@ server.listen(5000, function() {
             if(request.isLogin) {
                 const search_list = await database.collection("user").find({
                     "status": true
-                    // request.body.search
                 });
                 var result = {res: []};
                 for await (const online_user of search_list) {
