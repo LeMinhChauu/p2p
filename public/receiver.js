@@ -45,7 +45,7 @@
         `;
         document.getElementsByClassName("file-list")[0].appendChild(ele);
 
-        fileShare.progress_node = ele.getElementsByClassName("progress");
+        fileShare.progress_node = ele.getElementsByClassName("progress")[0];
 
         socket.emit("fs-start", {
             uid: senderID

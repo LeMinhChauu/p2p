@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="search-res" style="margin-top: 44px;">
+        <div class="res d-flex flex-column" style="width: 60%; margin: auto;">
+            <h3 style="text-align: center;">Search result</h3>
+            <div class="view-res" style="border: 1px solid black; border-radius: 8px; padding: 32px;">
+                <% if(result.res.length == 0) { %>
+                    <div class="no">
+                        No one online have this file
+                    </div>
+                <% }
+                var id = 0;
+                for(const user of result.res) { %>
+                    <div class="item d-flex flex-row justify-content-between" style="margin-top: 32px;">
+                        <div id="<%= id++ %>" class="user"><%= user.email %></div>
+                        <a class="btn btn-outline-primary copy" href="/receiver">Connect</a>
+                    </div>
+                    <hr>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/94316c747f.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        var copies = document.getElementsByClassName("copy");
+        for(const copy of copies) {
+            copy.addEventListener("click", (event) => {
+                navigator.clipboard.writeText(event.target.parentNode.children[0].innerHTML);
+            });
+        }
+    </script>
+</body>
+</html>

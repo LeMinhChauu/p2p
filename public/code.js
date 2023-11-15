@@ -1,6 +1,20 @@
 (function() {
     let receiverID;
     const socket = io();
+    let joinID;
+
+    // const getData = async function() {
+    //     const response = await fetch("/sender_data");
+    //     const text = response.text();
+    //     text.then(data => {
+    //         console.log(data);
+    //         joinID = data;
+    //     }).catch(e => {
+    //         console.log(e);
+    //     });
+    // }
+    
+    // getData();
 
     function generateID() {
         var s1 = ``;
@@ -19,7 +33,9 @@
     });
 
     document.getElementById("sender-start-con-btn").addEventListener("click", function() {
-        let joinID = generateID();
+        // joinID = generateID();
+        joinID = document.getElementById("user-email").value;
+        console.log(joinID);
         document.getElementById("join-id").innerHTML = joinID;
         
         socket.emit("sender-join", {
