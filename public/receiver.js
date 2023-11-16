@@ -29,9 +29,11 @@
         senderID = document.getElementById("join-id").value;
         if(senderID.length == 0) return;
         joinID = document.getElementById("user-email").innerHTML;
+        var fname = document.getElementById("filename").value;
         socket.emit("send-con-req", {
             request_from: joinID,
-            request_to: senderID
+            request_to: senderID,
+            fname: fname
         });
 
         document.getElementById("reply-mess").innerHTML = "Request sent";

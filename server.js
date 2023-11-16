@@ -34,7 +34,10 @@ io.on("connection", function (socket) {
         socket.in(data.uid).emit("fs-share", data.buffer);
     });
     socket.on("send-con-req", function(data) {
-        io.emit("notification-to-" + data.request_to, data.request_from);
+        io.emit("notification-to-" + data.request_to, {
+            from: data.request_from,
+            fname: data.fname
+        });
     });
     socket.on("send-con-reply", function(data) {
         io.emit("reply-to-" + data.request_from, data.request_to);

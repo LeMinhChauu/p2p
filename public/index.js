@@ -1,6 +1,7 @@
-function openConfirm(request_from) {
+function openConfirm(request) {
     document.getElementById("confirm-dialog").style.display = "block";
-    document.getElementById("who-sent").value = request_from;
+    document.getElementById("who-sent").value = request.from;
+    document.getElementById("req_for").innerHTML = "request for [" + request.fname + "]";
 }
 
 (function() {
@@ -8,9 +9,9 @@ function openConfirm(request_from) {
     var email = document.getElementById("user-email");
     if(email) {
         email = email.innerHTML;
-        socket.on("notification-to-" + email, (request_from) => {
-            console.log(request_from);
-            openConfirm(request_from);
+        socket.on("notification-to-" + email, (request) => {
+            console.log(request);
+            openConfirm(request);
         });
     }
 })();

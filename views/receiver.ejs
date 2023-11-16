@@ -25,7 +25,7 @@
                 style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 250px; background-color: white; padding: 32px; border-radius: 8px;">
                 <form method="post" action="/process_request" style="height: 100%;" class="d-flex flex-column justify-content-between">
                     <input type="text" name="request_from" id="who-sent" style="border: none; text-align: center;">
-                    <p style="text-align: center;">want to connect!</p>
+                    <p id="req_for" style="text-align: center;"></p>
                     <input type="text" name="url" value="/receiver" style="display: none;">
                     <button name="reply_con_req" id="accept" class="btn btn-outline-success" value="accept">Accept</button>
                     <button name="reply_con_req" id="refuse" class="btn btn-outline-danger" value="refuse">Refuse</button>
@@ -47,8 +47,9 @@
     <p style="text-align: right;" id="user-email"><%= request.user.email %></p>
     <div class="app d-flex flex-column justify-content-center">
         <div class="border d-flex flex-column justify-content-between" style="padding: 32px; border-radius: 8px; box-sizing: content-box; min-height: 50%;">
-            <div class="screen join-screen active d-flex flex-column justify-content-between" style="height: 40%;">
+            <div class="screen join-screen active d-flex flex-column justify-content-between" style="height: 60%;">
                 <h3 style="text-align: center;">Reveice file</h3>
+                <input id="filename" class="p-8" style="width: 100%; border: 1px solid black;" type="text">
                 <div class="form d-flex flex-row justify-content-center">
                     <!-- <div class="form-input"> -->
                         <!-- <label for="join-id" style="width: 100%;">Join ID</label> -->
