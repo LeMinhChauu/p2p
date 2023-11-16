@@ -28,10 +28,16 @@ io.on("connection", function (socket) {
         socket.in(data.uid).emit("fs-meta", data.metadata);
     });
     socket.on("fs-start", function(data) {
-        socket.in (data.uid).emit("fs-share", {});
+        socket.in(data.uid).emit("fs-share", {});
     });
     socket.on("file-raw", function(data) {
         socket.in(data.uid).emit("fs-share", data.buffer);
+    });
+    socket.on("send-con-req", function(data) {
+        io.emit("notification-to-" + data.request_to, data.request_from);
+    });
+    socket.on("send-con-reply", function(data) {
+        io.emit("reply-to-" + data.request_from, data.request_to);
     });
 });
 
@@ -64,7 +70,7 @@ server.listen(5000, function() {
     MongoClient.connect("mongodb://127.0.0.1:27017")
     .then((client) => {
         database = client.db(dbName);
-        console.log("Database connected.");
+        console.log("Database connected.\n");
 
         app.get("/", (request, response) => {
             response.render("index", {
@@ -112,7 +118,7 @@ server.listen(5000, function() {
                 response.redirect("login");
             }
             else {
-                response.redirect("login");
+                response.redirect("/login");
             }
         });
 
@@ -158,8 +164,73 @@ server.listen(5000, function() {
                 });
             }
             else {
-                response.render("login");
+                response.redirect("/login");
             }
+        });
+
+        app.get("/upload", async (request, response) => {
+            if(request.isLogin) {
+                var getdata = await database.collection("user").findOne({
+                    "email": request.user.email
+                });
+                request.session.user = getdata;
+                response.render("upload", {
+                    "request": request
+                });
+            }
+            else {
+                response.redirect("/login");
+            }
+        });
+        app.post("/upload", async (request, response) => {
+            if(request.isLogin) {
+                var result = await database.collection("user").updateOne({
+                    email: request.user.email
+                }, {
+                    $push: {
+                        files: request.body.name
+                    }
+                });
+                var check = await database.collection("user").findOne({
+                    "email": request.user.email
+                });
+                request.session.user = check;
+                response.redirect("/upload");
+            }
+            else {
+                response.redirect("/login");
+            }
+        });
+        app.post("/delete", async (request, response) => {
+            if(request.isLogin) {
+                var result = await database.collection("user").updateOne({
+                    email: request.user.email
+                }, {
+                    $pull: {
+                        files: request.body.filename
+                    }
+                });
+                var user = await database.collection("user").findOne({
+                    "email": request.user.email
+                });
+                request.session.user = user
+                response.redirect("/upload");
+            }
+            else {
+                response.redirect("/login");
+            }
+        });
+
+        app.post("/process_request", (request, response) => {
+            if(request.body.reply_con_req == "refuse") {
+                response.redirect(request.body.url);
+            }
+            else {
+                response.render("sender", {
+                    "request": request
+                });
+            }
+            io.emit("reply-to-" + request.body.request_from, request.body.reply_con_req);
         });
     })
     .catch((err) => {

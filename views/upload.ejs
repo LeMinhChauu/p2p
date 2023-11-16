@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="confirm-dialog"
+        style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1; display: none;">
+        <div class="infor-box" style="width: 100%; height: 100%; position: relative;">
+            <div class="info-mess d-flex flex-column justify-content-around"
+                style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 250px; background-color: white; padding: 32px; border-radius: 8px;">
+                <form method="post" action="/process_request" style="height: 100%;" class="d-flex flex-column justify-content-between">
+                    <input type="text" name="request_from" id="who-sent" style="border: none; text-align: center;">
+                    <p style="text-align: center;">want to connect!</p>
+                    <input type="text" name="url" value="/upload" style="display: none;">
+                    <button name="reply_con_req" id="accept" class="btn btn-outline-success" value="accept">Accept</button>
+                    <button name="reply_con_req" id="refuse" class="btn btn-outline-danger" value="refuse">Refuse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="header d-flex flex-row-reverse" style="margin-top: 6px;">
+        <a href="logout" class="btn btn-outline-danger" style="padding: 4px;">Log out</a>
+    </div>
+    <p style="text-align: right;" id="user-email"><%= request.user.email %></p>
+
+    <h3 style="text-align: center;">Upload new file</h3>
+    <div class="main" style="width: 70vw; height: 60vh; margin: auto; margin-top: 48px;">
+        <div class="contain d-flex flex-row" style="width: 100%; border: 1px solid black; height: 100%; border-radius: 8px;">
+            <div class="info-side" style="width: 40%; height: 100%; border-right: 1px solid black; padding: 32px;">
+                <div class="info" style="padding-bottom: 32px;">
+                    <h4>Name</h4>
+                    <%= request.user.name %>
+                </div>
+                <div class="uploads">
+                    <h4>Your upload</h4>
+                    <div class="items">
+                        <% for(const file of request.user.files) { %>
+                            <div class="item">
+                                <form method="post" action="/delete" class="d-flex flex-row justify-content-between">
+                                    <input name="filename" value="<%= file %>" style="border: none; width: 90px;">
+                                    <button class="delete" type="submit">Delete</button>
+                                </form>
+                            </div>
+                            <hr style="margin: 0; margin-top: 4px;">
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="upload-form" style="width: 60%; height: 100%; padding: 32px;">
+                <h4>Upload</h4>
+                <div class="form">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="filename" class="form-label">File name</label>
+                            <input name="name" type="text" class="form-control" id="filename" aria-describedby="rules">
+                            <span id="rules" class="form-text">Please follow our naming rules</span>
+                        </div>
+                        <div class="mb-3" style="margin-top: 32px;">
+                            <label id="upload" for="file" class="form-label"
+                                style="padding: 24px; cursor: pointer; width: 100%; border: 1px solid black; border-radius: 4px; text-align: center;">Your file</label>
+                            <input name="file" type="file" class="form-control" id="file" style="display: none;">
+                        </div>
+                        <div class="buttons" style="text-align: right;">
+                            <button type="submit" class="btn btn-outline-primary">Submit</button>
+                            <button type="reset" class="btn btn-outline-danger">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .item {
+            margin-top: 16px;
+        }
+
+        .delete {
+            color: rgb(210, 56, 56);
+            border: 1px solid rgb(216, 78, 78);
+            border-radius: 4px;
+        }
+        .delete:hover {
+            background-color: rgb(215, 68, 68);
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.getElementById("file").addEventListener("change", (e) => {
+            var filename = e.target.value.slice(12);
+            document.getElementById("upload").innerHTML = filename;
+        });
+    </script>
+    <script type="text/javascript" src="socket.io/socket.io.js"></script>
+    <script src="index.js"></script>
+    <script src="https://kit.fontawesome.com/94316c747f.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

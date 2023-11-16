@@ -1,6 +1,8 @@
 (function() {
     let senderID;
+    let joinID;
     const socket = io();
+    let reply = false;
 
     function generateID() {
         var s1 = ``;
@@ -12,23 +14,55 @@
         return `${s1}-${s2}-${s3}`;
     }
 
+    
     // paste sender ID
     document.getElementById("paste").addEventListener("click", async function() {
         document.getElementById("join-id").value = await navigator.clipboard.readText();
     });
 
+    document.getElementById("close").addEventListener("click", (e) => {
+        document.getElementById("information-dialog").style.display = "none";
+        startConnect(reply);
+    });
+    
     document.getElementById("receiver-start-con-btn").addEventListener("click", function() {
         senderID = document.getElementById("join-id").value;
         if(senderID.length == 0) return;
-        let joinID = generateID();
-        
-        socket.emit("receiver-join", {
-            uid: joinID,
-            sender_uid: senderID
+        joinID = document.getElementById("user-email").innerHTML;
+        socket.emit("send-con-req", {
+            request_from: joinID,
+            request_to: senderID
         });
-        document.getElementsByClassName("join-screen")[0].classList.remove("active");
-        document.getElementsByClassName("fs-screen")[0].classList.add("active");
+
+        document.getElementById("reply-mess").innerHTML = "Request sent";
+        document.getElementById("information-dialog").style.display = "block";
+        
+        socket.on("reply-to-" + joinID, (response) => {
+            if(response == "accept") {
+                console.log("OK")
+                document.getElementById("reply-mess").innerHTML = "Access accepted";
+                document.getElementById("information-dialog").style.display = "block";
+                reply = true;
+            }
+            else {
+                document.getElementById("reply-mess").innerHTML = "Access refused";
+                document.getElementById("information-dialog").style.display = "block";
+                console.log("NO");
+                reply = false;
+            }
+        });
     });
+
+    const startConnect = function(res) {
+        if(res) {
+            socket.emit("receiver-join", {
+                uid: joinID,
+                sender_uid: senderID
+            });
+            document.getElementsByClassName("join-screen")[0].classList.remove("active");
+            document.getElementsByClassName("fs-screen")[0].classList.add("active");
+        }
+    }
     
     let fileShare = {};
 
