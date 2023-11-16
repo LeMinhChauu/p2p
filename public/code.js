@@ -17,6 +17,7 @@
         
         // getData();
 
+        // create ID for connection (depreciate)
         function generateID() {
             var s1 = ``;
             var s2 = ``;
@@ -39,10 +40,12 @@
             // console.log(joinID);
             document.getElementById("join-id").innerHTML = joinID;
             
+            // create socket for send file with user email
             socket.emit("sender-join", {
                 uid: joinID
             });
 
+            // create connection between client
             socket.on("init", function(uid) {
                 receiverID = uid;
                 document.getElementsByClassName("join-screen")[0].classList.remove("active");
@@ -50,6 +53,7 @@
                 document.getElementsByClassName("waiting-screen")[0].style.display = "none";
             });
 
+            // get file for trans
             document.getElementById("file-input").addEventListener("change", function(e) {
                 let file = e.target.files[0];
                 if(!file) return;
@@ -71,6 +75,7 @@
                 }
                 reader.readAsArrayBuffer(file);
             });
+            // transmit file
             function shareFile(metadata, buffer, progress_node) {
                 socket.emit("file-meta", {
                     uid: receiverID,

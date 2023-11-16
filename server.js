@@ -2,11 +2,12 @@ const express = require("express");
 const { request } = require("http");
 const path = require("path");
 
-
+// create express server
 const app = express();
 const server = require("http").createServer(app);
 app.set('view engine', 'ejs');
 
+// create socket
 const io = require("socket.io")(server);
 
 // app use
@@ -16,7 +17,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(bodyParser.urlencoded({ extended: true}));
 
+// socket function
 io.on("connection", function (socket) {
+
+    // create and join room
     socket.on("sender-join", function(data) {
         socket.join(data.uid);
     });
@@ -24,6 +28,8 @@ io.on("connection", function (socket) {
         socket.join(data.uid);
         socket.in(data.sender_uid).emit("init", data.uid);
     });
+
+    // file management
     socket.on("file-meta", function(data) {
         socket.in(data.uid).emit("fs-meta", data.metadata);
     });
@@ -33,6 +39,8 @@ io.on("connection", function (socket) {
     socket.on("file-raw", function(data) {
         socket.in(data.uid).emit("fs-share", data.buffer);
     });
+
+    // inform to client
     socket.on("send-con-req", function(data) {
         io.emit("notification-to-" + data.request_to, {
             from: data.request_from,
@@ -44,14 +52,14 @@ io.on("connection", function (socket) {
     });
 });
 
-// connect database
+// database
 var mongodb = require("mongodb");
 var MongoClient = mongodb.MongoClient;
 var ObjectId = mongodb.ObjectId;
 var dbName = "file-sharing";
 var database = null;
 
-// verify log in
+// session for log in
 var session = require("express-session");
 const { setEngine } = require("crypto");
 app.use(session({
@@ -59,6 +67,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
 }));
+
 app.use(function(request, response, next) {
     // request.mainURL = mainURL;
     request.isLogin = (typeof request.session.user !== "undefined");
@@ -67,25 +76,31 @@ app.use(function(request, response, next) {
     next();
 });
 
+// start server port 5000
 server.listen(5000, function() {
     console.log("Server start at 127.0.0.1:5000");
 
     MongoClient.connect("mongodb://127.0.0.1:27017")
     .then((client) => {
+
+        // connect database
         database = client.db(dbName);
         console.log("Database connected.\n");
 
+        // render home page
         app.get("/", (request, response) => {
             response.render("index", {
                 "request": request
             });
         });
 
+        // render log in page
         app.get("/login", (request, response) => {
             response.render("login", {
                 "request": request
             });
         });
+        // process log in infor
         app.post("/login", async function(request, response) {
             var isSignup = await database.collection("user").findOne({
                 "email": request.body.email
@@ -108,6 +123,7 @@ server.listen(5000, function() {
             }
         });
 
+        // log out
         app.get("/logout", async (request, response) => {
             if(request.isLogin) {
                 const result = await database.collection("user").updateOne({
@@ -125,6 +141,7 @@ server.listen(5000, function() {
             }
         });
 
+        // render sender page
         app.get("/sender", (request, response) => {
             if(request.isLogin) {
                 response.render("sender", {
@@ -139,6 +156,7 @@ server.listen(5000, function() {
         //     response.send("chau.leminhchau59@hcmut.edu.vn");
         // });
 
+        // render receiver page
         app.get("/receiver", (request, response) => {
             if(request.isLogin) {
                     response.render("receiver", {
@@ -149,6 +167,7 @@ server.listen(5000, function() {
                 response.redirect("/login");
             }
         });
+        // process search file
         app.post("/search", async (request, response) => {
             if(request.isLogin) {
                 const search_list = await database.collection("user").find({
@@ -171,6 +190,7 @@ server.listen(5000, function() {
             }
         });
 
+        // render upload page
         app.get("/upload", async (request, response) => {
             if(request.isLogin) {
                 var getdata = await database.collection("user").findOne({
@@ -185,6 +205,7 @@ server.listen(5000, function() {
                 response.redirect("/login");
             }
         });
+        // process upload page
         app.post("/upload", async (request, response) => {
             if(request.isLogin) {
                 var result = await database.collection("user").updateOne({
@@ -204,6 +225,7 @@ server.listen(5000, function() {
                 response.redirect("/login");
             }
         });
+        // delete file
         app.post("/delete", async (request, response) => {
             if(request.isLogin) {
                 var result = await database.collection("user").updateOne({
@@ -224,6 +246,7 @@ server.listen(5000, function() {
             }
         });
 
+        // process reply connection request
         app.post("/process_request", (request, response) => {
             if(request.body.reply_con_req == "refuse") {
                 response.redirect(request.body.url);
@@ -233,6 +256,7 @@ server.listen(5000, function() {
                     "request": request
                 });
             }
+            // send reply to user sent request
             io.emit("reply-to-" + request.body.request_from, request.body.reply_con_req);
         });
     })

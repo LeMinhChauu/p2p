@@ -4,6 +4,7 @@
     const socket = io();
     let reply = false;
 
+    // generate ID (depreciate)
     function generateID() {
         var s1 = ``;
         var s2 = ``;
@@ -20,16 +21,20 @@
         document.getElementById("join-id").value = await navigator.clipboard.readText();
     });
 
+    // close inform dialog
     document.getElementById("close").addEventListener("click", (e) => {
         document.getElementById("information-dialog").style.display = "none";
         startConnect(reply);
     });
     
+    // send connection request
     document.getElementById("receiver-start-con-btn").addEventListener("click", function() {
         senderID = document.getElementById("join-id").value;
         if(senderID.length == 0) return;
         joinID = document.getElementById("user-email").innerHTML;
         var fname = document.getElementById("filename").value;
+
+        // emit request to server
         socket.emit("send-con-req", {
             request_from: joinID,
             request_to: senderID,
@@ -39,6 +44,7 @@
         document.getElementById("reply-mess").innerHTML = "Request sent";
         document.getElementById("information-dialog").style.display = "block";
         
+        // get server reply for connection request
         socket.on("reply-to-" + joinID, (response) => {
             if(response == "accept") {
                 console.log("OK")
@@ -55,6 +61,7 @@
         });
     });
 
+    // start connect
     const startConnect = function(res) {
         if(res) {
             socket.emit("receiver-join", {
@@ -68,6 +75,7 @@
     
     let fileShare = {};
 
+    // file transmition progress
     socket.on("fs-meta", function(metadata) {
         fileShare.metadata = metadata;
         fileShare.transmitted = 0;
@@ -88,6 +96,7 @@
         });
     });
 
+    // socket stage share file
     socket.on("fs-share", function(buffer) {
         var confirm = true;
         if(confirm == true) {
@@ -95,6 +104,7 @@
             fileShare.transmitted += buffer.byteLength;
             fileShare.progress_node.innerText = Math.trunc(fileShare.transmitted / fileShare.metadata.total_buffer_size * 100) + "%";
 
+            // download if file transmited successfully
             if(fileShare.transmitted == fileShare.metadata.total_buffer_size) {
                 download(new Blob(fileShare.buffer), fileShare.metadata.filename);
                 fileShare = {};
