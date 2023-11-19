@@ -24,7 +24,20 @@
         </div>
     </div>
     <div class="header d-flex flex-row-reverse" style="margin-top: 6px;">
-        <a href="logout" class="btn btn-outline-danger" style="padding: 4px;">Log out</a>
+        <div class="header d-flex flex-row-reverse">
+            <a href="logout" class="btn btn-outline-danger" style="padding: 4px;">Log out</a>
+            <form method="post" action="/search" style="margin-right: 12px; position: relative;">
+                <input name="search" type="search" style="padding: 3px 4px 4px 4px;">
+                <button type="submit"
+                    style="border: 1px solid rgb(113, 113, 113); border-bottom-right-radius: 2px; border-top-right-radius: 2px; padding: 4px 8px; position: absolute; right: 0;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+        <div style="margin-right: 36px;">
+            <a style="text-decoration: none; padding: 4px 10px; line-height: 2;" href="/receiver">Receive</a>
+            <a style="text-decoration: none; padding: 4px 10px; line-height: 2;" href="/upload">Upload</a>
+        </div>
     </div>
     <p style="text-align: right;" id="user-email"><%= request.user.email %></p>
 

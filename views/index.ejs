@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="width: 99vw; height: 99vh; position: relative;">
+    <% if(request.isLogin) { %>
     <div id="confirm-dialog"
         style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1; display: none;">
         <div class="infor-box" style="width: 100%; height: 100%; position: relative;">
@@ -23,18 +24,30 @@
             </div>
         </div>
     </div>
-    <% if(request.isLogin) { %>
     <div class="header d-flex flex-row-reverse" style="margin-top: 6px;">
-        <a href="/logout" class="btn btn-outline-danger">Log out</a>
+        <div class="header d-flex flex-row-reverse">
+            <a href="logout" class="btn btn-outline-danger" style="padding: 4px;">Log out</a>
+            <form method="post" action="/search" style="margin-right: 12px; position: relative;">
+                <input name="search" type="search" style="padding: 3px 4px 4px 4px;">
+                <button type="submit"
+                    style="border: 1px solid rgb(113, 113, 113); border-bottom-right-radius: 2px; border-top-right-radius: 2px; padding: 4px 8px; position: absolute; right: 0;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+        <div style="margin-right: 36px;">
+            <a style="text-decoration: none; padding: 4px 10px; line-height: 2;" href="/receiver">Receive</a>
+            <a style="text-decoration: none; padding: 4px 10px; line-height: 2;" href="/upload">Upload</a>
+        </div>
     </div>
     <p style="text-align: right;" id="user-email"><%= request.user.email %></p>
     <% } %>
     <div class="d-flex flex-column justify-content-around" style="width: 40%; height: 50%; margin: auto; margin-top: 5%;">
         <h3 style="text-align: center;">Welcome to Simple file sharing</h3>
         <div class="d-flex flex-row justify-content-between">
-            <div class="sender option">
+            <!-- <div class="sender option">
                 <a href="/sender">Send</a>
-            </div>
+            </div> -->
             <div class="receiver option">
                 <a href="/receiver">Receive</a>
             </div>
@@ -54,6 +67,9 @@
         .option a {
             text-decoration: none;
             line-height: 100px;
+        }
+        input:focus {
+            outline: none;
         }
     </style>
 

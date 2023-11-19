@@ -182,7 +182,8 @@ server.listen(5000, function() {
                     }
                 }
                 response.render("search", {
-                    "result": result
+                    "result": result,
+                    "request": request
                 });
             }
             else {
