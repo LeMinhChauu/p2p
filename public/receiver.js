@@ -1,3 +1,22 @@
+// get user for request file
+async function getUser(who) {
+    const user = await fetch("/getuser", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify({
+            who: who
+        })
+    }).then((res) => {
+        res.json().then((data) => {
+            return data;
+        });
+    }).catch((e) => {
+        console.log(e);
+    });
+}
+
 (function() {
     let senderID;
     let joinID;
@@ -28,9 +47,64 @@
     });
     
     // send connection request
-    document.getElementById("receiver-start-con-btn").addEventListener("click", function() {
+    document.getElementById("receiver-start-con-btn").addEventListener("click", async function() {
         senderID = document.getElementById("join-id").value;
+        // joinID = document.getElementById("user-email").innerHTML;
         if(senderID.length == 0) return;
+
+        // const user = await fetch("/getuser", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json;charset=utf-8"
+        //     },
+        //     body: JSON.stringify({
+        //         who: senderID
+        //     })
+        // }).then((res) => {
+        //     res.json().then((data) => {
+        //         if(data.status) {
+        //             joinID = document.getElementById("user-email").innerHTML;
+        //             var fname = document.getElementById("filename").value;
+            
+        //             // emit request to server
+        //             socket.emit("send-con-req", {
+        //                 request_from: joinID,
+        //                 request_to: senderID,
+        //                 fname: fname
+        //             });
+            
+        //             document.getElementById("reply-mess").innerHTML = "Request sent";
+        //             document.getElementById("information-dialog").style.display = "block";
+                    
+        //             // get server reply for connection request
+        //             socket.on("reply-to-" + joinID, (response) => {
+        //                 if(response == "accept") {
+        //                     console.log("OK")
+        //                     document.getElementById("reply-mess").innerHTML = "Access accepted";
+        //                     document.getElementById("information-dialog").style.display = "block";
+        //                     reply = true;
+        //                 }
+        //                 else {
+        //                     document.getElementById("reply-mess").innerHTML = "Access refused";
+        //                     document.getElementById("information-dialog").style.display = "block";
+        //                     console.log("NO");
+        //                     reply = false;
+        //                 }
+        //             });
+        //         }
+        //         else {
+        //             setTimeout(() => {
+        //                 document.getElementById("reply-mess").innerHTML = "User may not online!";
+        //                 document.getElementById("information-dialog").style.display = "block";
+        //                 console.log("NO");
+        //                 reply = false;
+        //             }, 1000);
+        //         }
+        //     });
+        // }).catch((e) => {
+        //     console.log(e);
+        // });
+
         joinID = document.getElementById("user-email").innerHTML;
         var fname = document.getElementById("filename").value;
 
@@ -52,11 +126,19 @@
                 document.getElementById("information-dialog").style.display = "block";
                 reply = true;
             }
-            else {
+            else if(response == "refuse") {
                 document.getElementById("reply-mess").innerHTML = "Access refused";
                 document.getElementById("information-dialog").style.display = "block";
                 console.log("NO");
                 reply = false;
+            }
+            else {
+                setTimeout(() => {
+                    document.getElementById("reply-mess").innerHTML = "User has disconnected";
+                    document.getElementById("information-dialog").style.display = "block";
+                    console.log("NO");
+                    reply = false;
+                }, 3000);
             }
         });
     });

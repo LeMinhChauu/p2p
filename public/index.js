@@ -12,8 +12,12 @@ function openConfirm(request) {
     if(email) {
         email = email.innerHTML;
         socket.on("notification-to-" + email, (request) => {
-            console.log(request);
+            // console.log(request);
             openConfirm(request);
+        });
+
+        socket.emit("user", {
+            "email": email
         });
     }
 })();

@@ -10,6 +10,8 @@ app.set('view engine', 'ejs');
 // create socket
 const io = require("socket.io")(server);
 
+var clients = [];
+
 // app use
 const bodyParser = require('body-parser');
 app.use(express.static(path.join(__dirname + "/public")));
@@ -19,6 +21,36 @@ app.use(bodyParser.urlencoded({ extended: true}));
 
 // socket function
 io.on("connection", function (socket) {
+    // var client = socket.client;
+    // clients.push(client.id);
+
+    // for(const client of io.sockets.sockets.keys()) {
+    //     console.log(client);
+    // }
+    // console.log("-------------------");
+
+    socket.on("user", function(data) {
+        console.log(data.email + " connected!");
+        socket.user = data.email;
+        clients.push(data.email);
+        console.log("User online: ", clients);
+    });
+
+    socket.on("disconnect", function(data) {
+        const index = clients.indexOf(socket.user);
+        if(index > -1) {
+            clients.splice(index, 1);
+        }
+        console.log(socket.user + " disconnected!");
+        console.log("Users online: ", clients);
+    });
+
+    // socket.on("disconnect", function() {
+    //     const index = clients.indexOf(socket.client.id);
+    //     if(index > -1) {
+    //         clients.splice(index, 1);
+    //     }
+    // });
 
     // create and join room
     socket.on("sender-join", function(data) {
@@ -29,7 +61,7 @@ io.on("connection", function (socket) {
         socket.in(data.sender_uid).emit("init", data.uid);
     });
 
-    // file management
+    // file transmittion
     socket.on("file-meta", function(data) {
         socket.in(data.uid).emit("fs-meta", data.metadata);
     });
@@ -42,10 +74,15 @@ io.on("connection", function (socket) {
 
     // inform to client
     socket.on("send-con-req", function(data) {
-        io.emit("notification-to-" + data.request_to, {
-            from: data.request_from,
-            fname: data.fname
-        });
+        if(clients.indexOf(data.request_to) < 0) {
+            io.emit("reply-to-" + data.request_from, "disconnected");
+        }
+        else {
+            io.emit("notification-to-" + data.request_to, {
+                from: data.request_from,
+                fname: data.fname
+            });
+        }
     });
     socket.on("send-con-reply", function(data) {
         io.emit("reply-to-" + data.request_from, data.request_to);
@@ -62,6 +99,8 @@ var database = null;
 // session for log in
 var session = require("express-session");
 const { setEngine } = require("crypto");
+const { clearScreenDown } = require("readline");
+const { SocketAddress } = require("net");
 app.use(session({
     secret: "secret key",
     resave: false,
@@ -171,7 +210,9 @@ server.listen(5000, function() {
         app.post("/search", async (request, response) => {
             if(request.isLogin) {
                 const search_list = await database.collection("user").find({
-                    "status": true
+                    "email": {
+                        $in: clients
+                    }
                 });
                 var result = {res: []};
                 for await (const online_user of search_list) {
@@ -248,18 +289,42 @@ server.listen(5000, function() {
         });
 
         // process reply connection request
-        app.post("/process_request", (request, response) => {
-            if(request.body.reply_con_req == "refuse") {
-                response.redirect(request.body.url);
+        app.post("/process_request", async (request, response) => {
+            // const isonline = await database.collection("user").findOne({
+            //     "email": request.body.request_from
+            // });
+            if(request.isLogin) {
+                if(request.body.reply_con_req == "refuse") {
+                    if(request.body.url == "/sender") {
+                        response.redirect("/");
+                    }
+                    else {
+                        response.redirect(request.body.url);
+                    }
+                }
+                else {
+                    // response.redirect("/sender");
+                    response.render("sender", {
+                        "request": request
+                    });
+                }
+                // send reply to user sent request
+                io.emit("reply-to-" + request.body.request_from, request.body.reply_con_req);
             }
             else {
-                response.render("sender", {
-                    "request": request
-                });
+                io.email("reply-to" + request.body.request_from, "User've just disconnected!");
             }
-            // send reply to user sent request
-            io.emit("reply-to-" + request.body.request_from, request.body.reply_con_req);
         });
+
+        // get user online
+        // app.post("/getuser", async (request, response) => {
+        //     // console.log(request.body)
+        //     const user = await database.collection("user").findOne({
+        //         "email": request.body.who
+        //     });
+        //     // console.log(user)
+        //     response.send(user);
+        // });
     })
     .catch((err) => {
         console.log(err);
